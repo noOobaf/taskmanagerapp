@@ -10,8 +10,9 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const PrivateRoute = ({ children }) => {
-  const { token } = useContext(AuthContext);
-  return token ? children : <Navigate to="/auth" />;
+  const { token, user } = useContext(AuthContext);
+  // Only allow access if both token and user are present
+  return token && user ? children : <Navigate to="/auth" />;
 };
 
 function App() {

@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { login, register } from '../services/api';
@@ -6,6 +6,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const Auth = () => {
     const { login: doLogin } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
     const [name, setName] = useState('');
@@ -14,6 +15,7 @@ const Auth = () => {
     const [identifier, setIdentifier] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [pendingLogin, setPendingLogin] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -23,8 +25,8 @@ const Auth = () => {
             if (isLogin) {
                 const res = await login(identifier, password);
                 doLogin(res.data.token);
+                setPendingLogin(true);
                 toast.success('Login successful!');
-                navigate('/');
             } else {
                 await register(username, password, name, contact_number, email);
                 setIsLogin(true);
@@ -35,6 +37,13 @@ const Auth = () => {
             toast.error('Failed to ' + (isLogin ? 'login' : 'signup'));
         }
     };
+
+    useEffect(() => {
+        if (pendingLogin && user) {
+            navigate('/');
+            setPendingLogin(false);
+        }
+    }, [pendingLogin, user, navigate]);
 
     return (
         <div className="auth-container auth-beautiful">
